@@ -1,0 +1,72 @@
+Шаги для настройки сервера для проекта Django с использованием Docker, учитывая создание базы данных на PostgreSQL в Docker:
+1.	Установить Docker и Docker Compose на сервер.
+2.	Создать директорию на сервере для хранения файлов проекта Django.
+3.	Создать файл Dockerfile в корневой директории проекта, содержащий инструкции по сборке образа Docker. Примерный вид файла:
+
+FROM python:3.9
+ENV PYTHONUNBUFFERED 1
+RUN mkdir /code
+WORKDIR /code
+COPY requirements.txt /code/
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . /code/
+4.	Создать файл docker-compose.yml в корневой директории проекта, содержащий инструкции для запуска контейнеров Docker, включая контейнер с базой данных PostgreSQL. Примерный вид файла:
+version: '3'
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydatabase
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+volumes:
+  postgres_data:
+  
+  
+5.	Создать файл requirements.txt в корневой директории проекта, содержащий список зависимостей Python для проекта Django. Например:
+
+Django==3.2.4
+psycopg2-binary==2.9.1
+
+6.	Создать Django проект внутри контейнера Docker, используя команду:
+
+docker-compose run web django-admin startproject myproject .
+
+7.	Настроить файл settings.py проекта Django для подключения к базе данных PostgreSQL в Docker. Примерная конфигурация:
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'mydatabase',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'db',
+        'PORT': 5432,
+    }
+}
+
+8.	Запустить контейнеры Docker с помощью команды:
+
+docker-compose up
+
+9.	Создать миграции базы данных Django и применить их:
+
+docker-compose run web python manage.py makemigrations
+docker-compose run web python manage.py migrate
+
+10.	Запустить проект Django на сервере, используя команду:
+
+docker-compose up
+
+Эти шаги позволят настроить сервер для проекта Django с использованием Docker и базы данных PostgreSQL в Docker.
