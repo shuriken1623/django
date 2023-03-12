@@ -1,0 +1,40 @@
+CREATE TABLE signatures.positions (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  external_code TEXT
+);
+
+CREATE TABLE signatures.departments (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  external_code TEXT
+);
+
+CREATE TABLE signatures.powers_of_attorney (
+  id SERIAL PRIMARY KEY,
+  number INTEGER NOT NULL,
+  issue_date DATE NOT NULL,
+  expiration_date DATE NOT NULL
+);
+
+CREATE TABLE signatures.certificates (
+  id SERIAL PRIMARY KEY,
+  serial_number TEXT NOT NULL,
+  issue_date DATE NOT NULL,
+  expiration_date DATE NOT NULL,
+  issued_by TEXT NOT NULL
+);
+
+CREATE TABLE signatures.employees (
+  id SERIAL PRIMARY KEY,
+  last_name TEXT NOT NULL,
+  first_name TEXT NOT NULL,
+  middle_name TEXT,
+  snils TEXT NOT NULL,
+  position_id INTEGER REFERENCES signatures.positions,
+  department_id INTEGER REFERENCES signatures.departments,
+  power_of_attorney_id INTEGER REFERENCES signatures.powers_of_attorney,
+  certificate_id INTEGER REFERENCES signatures.certificates,
+  certificate_expiration_date DATE,
+  is_terminated BOOLEAN DEFAULT false
+);
